@@ -16,50 +16,66 @@ lpb = requests.post{'https://api.vk.com/method/groups.getLongPollServer',params=
 ts = lpb.ts
 
 bot_stat = {msgs=0,cmds=0,work_start=os.time()}
+
 while true do
     xpcall(
         function()
-            result = requests.post(lpb.server..'?act=a_check&key='..lpb.key..'&ts='..ts..'&wait=25').json()
-            if libkb.check('failed',result) then 
+            updates = requests.post(lpb.server..'?act=a_check&key='..lpb.key..'&ts='..ts..'&wait=25').json()
+            if libkb.check('failed',updates) then 
                 lpb = requests.post{'https://api.vk.com/method/groups.getLongPollServer',params={access_token=config.group_token, v='5.80',group_id=config.group_id}}.json().response
                 ts = lpb.ts
-                result = requests.post(lpb.server..'?act=a_check&key='..lpb.key..'&ts='..ts..'&wait=25').json()
+                updates = requests.post(lpb.server..'?act=a_check&key='..lpb.key..'&ts='..ts..'&wait=25').json()
             end
             bot_stat.msgs = bot_stat.msgs+1
-            ts = result.ts
-            result = result.updates[1]
-            text = result.object.text
-            msgid = result.object.conversation_message_id
-            toho = result.object.peer_id
-            userid = result.object.from_id
-            text_split = split(text,' ')
-            if libkb.check(text_split[1],config.names) then
-                bot_stat.cmds = bot_stat.cmds+1
-                print(os.date('%H:%M:%S')..'| Упоминание Кбота в '..toho..' с текстом '..text)
-                if libkb.check(text_split[2],cmds) then
-                    user_text = split(text,' ')
-                    table.remove(user_text,1)
-                    table.remove(user_text,1)
-                    user_text = table.concat(user_text,' ')
+            ts = updates.ts
+            for _,result in pairs(updates.updates) do 
+                text = result.object.text
+                msgid = result.object.conversation_message_id
+                toho = result.object.peer_id
+                userid = result.object.from_id
+                text_split = split(text,' ')
+                if libkb.check(text_split[1],config.names) then
+                    bot_stat.cmds = bot_stat.cmds+1
+                    print(os.date('%H:%M:%S')..' | Упоминание Кбота в '..toho..' с текстом '..text)
+                    if libkb.check(text_split[2],cmds) then
+                        user_text = split(text,' ')
+                        table.remove(user_text,1)
+                        table.remove(user_text,1)
+                        user_text = table.concat(user_text,' ')
 
-                    msg = {}
-                    msg.toho = toho
-                    msg.text = text
-                    msg.userid = userid
-                    msg.text_split = text_split
-                    msg.user_text = user_text
-                    msg.plugin = 'plugins/'..cmds[text_split[2]][1]..'/'..cmds[text_split[2]][2]
-                    msg.config = config
-                    msg.bot_stat = bot_stat
+                        msg = {}
+                        msg.toho = toho
+                        msg.text = text
+                        msg.userid = userid
+                        msg.text_split = text_split
+                        msg.user_text = user_text
+                        msg.plugin = 'plugins/'..cmds[text_split[2]][1]..'/'..cmds[text_split[2]][2]
+                        msg.config = config
+                        msg.bot_stat = bot_stat
 
-                    thread = threads.new("libkb = require('libkbot-dev') msg = ... require(msg.plugin)(msg)",msg)
-                    assert(thread:start(true))
-                else
-                    user_text = split(text,' ')
-                    table.remove(user_text,1)
-                    user_text = table.concat(user_text,' ')
-                    ret = requests.get{'https://isinkin-bot-api.herokuapp.com/1/talk',params={q=urlencode.encode_url(user_text)}}
-                    libkb.apisay(ret.json().text,toho)
+                        user_info = libkb.sql_get{'data/users.db','users','WHERE id='..userid}
+                        if not libkb.check(userid,user_info) then
+                            user_info[#user_info+1] = {userid,1,'{}'}
+                            libkb.sql_put{'data/users.db','users',{userid,1,'{}'}}
+                        end
+                        if cmds[text_split[2]][1] == 'admin' and user_info[1].perm ~= 3 then
+                            libkb.apisay('Не дорос до админки :(',toho)
+                            libkb.continue()
+                        end
+                        if cmds[text_split[2]][1] == 'vip' and user_info[1].perm == 1 then
+                            libkb.apisay('У тебя нет випки чтобы юзать эту команду',toho)
+                            libkb.continue()
+                        end
+
+                        thread = threads.new("libkb = require('libkbot-dev') msg = ... require(msg.plugin)(msg)",msg)
+                        assert(thread:start(true))
+                    else
+                        user_text = split(text,' ')
+                        table.remove(user_text,1)
+                        user_text = table.concat(user_text,' ')
+                        ret = requests.get{'https://isinkin-bot-api.herokuapp.com/1/talk',params={q=urlencode.encode_url(user_text)}}
+                        libkb.apisay(ret.json().text,toho)
+                    end
                 end
             end
         end,libkb.errorhandler

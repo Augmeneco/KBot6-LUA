@@ -4,7 +4,7 @@ return function(msg)
     status = [[
         [ Статистика ]
         Процессор:
-        &#8195;UPTIME&#8195;Температура: TEMP
+        &#8195;UPTIME&#8195;Температура: TEMP °С
         ОЗУ:
         &#8195;Всего: RAM_FULL МБ
         &#8195;Использовано: RAM_USE МБ
@@ -13,7 +13,12 @@ return function(msg)
         &#8195;Обработано сообщений: MSGS
         &#8195;Обработано команд: CMDS
         &#8195;Время работы: WORK_TIME
+        Чат: CHAT
+        Права юзера: PERMS
     ]]
+    user_info = libkb.sql_get{'data/users.db','users','WHERE id='..msg.userid}[1]
+    status = status:gsub('CHAT',msg.toho):gsub('PERMS',user_info.perm)
+
     status = status:gsub('BOT_USE',BOT_USE):gsub('UPTIME',io.popen('uptime'):read('*a'))
     local WORK_TIME = math.floor((os.time()-msg.bot_stat.work_start)/(60*60*24))..' дней | '..(math.floor((os.time()-msg.bot_stat.work_start)/(60*60))%60)..' часов | '
     WORK_TIME = WORK_TIME..(math.floor((os.time()-msg.bot_stat.work_start)/(60))%60)..' минут | '..(math.floor((os.time()-msg.bot_stat.work_start))%60)..' секунд'
