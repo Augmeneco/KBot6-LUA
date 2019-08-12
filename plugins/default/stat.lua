@@ -28,5 +28,5 @@ return function(msg)
     status = status:gsub('RAM_FULL',RAM[1]):gsub('RAM_USE',RAM[2])
     status = status:gsub('MSGS',msg.bot_stat.msgs):gsub('CMDS',msg.bot_stat.cmds)
     status = status:gsub('WORK_TIME',WORK_TIME):gsub('TEMP',io.open('/sys/class/thermal/thermal_zone0/temp','r'):read('*a')/1000)
-    libkb.apisay(status,msg.toho)
+    libkb.apisay{status,msg.toho}
 end
