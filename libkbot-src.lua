@@ -1,11 +1,12 @@
 ins = require('inspect')
 requests = require('requests')
 urlencode = require('urlencode')
-json = require('dkjson')
+json = require('cjson')
 split = require('split').split
 threads = require("llthreads2")
 re = require('rex_pcre')
 sqlite = require('lsqlite3')
+curl = require('cURL')
 
 funcs = {}
 
@@ -31,12 +32,32 @@ end
 
 function funcs.errorhandler( err )
     if string.find(err,'wantread') then return 0 end
+    if string.find(err,'arithmetic on a nil value') then return 0 end
     print( "ERROR:", err )
 end
 
-function funcs.apisay(text,toho)
-    if msg.config ~= nil then config = msg.config end
-    local params = {access_token=config.group_token,v='5.80',peer_id=toho,message=urlencode.encode_url(text)}
+function funcs.apisay(...)
+    args = ...
+    if args.photo ~= nil then
+        curl.easy{
+            url = ret.response.upload_url,
+            ssl_verifypeer = false,
+            ssl_verifyhost = false,
+            httppost = curl.form{
+                file = {
+                    data = args.photo,
+                    name = "shit.jpg",
+                    type='image/jpeg'
+                }
+            },
+            writefunction = function(str)
+                ret = json.decode(str)
+            end
+        }:perform()
+        ret = requests.get('https://api.vk.com/method/photos.saveMessagesPhoto?v=5.100&server='..ret.server..'&photo='..ret.photo..'&hash='..ret.hash..'&access_token='..msg.config.group_token).json()
+        args.attachment = 'photo'..ret.response[1].owner_id..'_'..ret.response[1].id
+    end
+    params = {access_token=msg.config.group_token,v='5.80',peer_id=args[2],message=urlencode.encode_url(args[1]),attachment=args.attachment}
     return requests.post{'https://api.vk.com/method/messages.send',params=params}
 end
 
