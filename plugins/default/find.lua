@@ -11,7 +11,7 @@ return function(str)
         url = 'https://yandex.ru/images/search?url='..url..'&rpt=imageview'
 
 
-        index = htmlparser.parse(libkb.curl_proxy(url)) --яндекс мрази забанили меня(
+        index = htmlparser.parse(libkb.curl_proxy(url))
         root = index('div.tags__wrapper > a')
         tags = ''
         for _,e in pairs(root) do 

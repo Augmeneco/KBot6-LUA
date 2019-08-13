@@ -46,7 +46,7 @@ while true do
                         msg.bot_stat = bot_stat
 
                         user_info = libkb.sql_get{'data/users.db','users','WHERE id='..userid}
-                        if not libkb.check(userid,user_info) then
+                        if libkb.check(userid,user_info) then
                             user_info[#user_info+1] = {userid,1,'{}'}
                             libkb.sql_put{'data/users.db','users',{userid,1,'{}'}}
                         end
@@ -60,7 +60,7 @@ while true do
                             pass = false
                         end
                         if pass then
-                            thread = threads.new("libkb = require('libkbot-dev') msg = ... require(msg.plugin)(msg)",msg)
+                            thread = threads.new(function(...) libkb = require('libkbot-dev') msg = ... require(msg.plugin)(msg) end,msg)
                             assert(thread:start(true))
                         end
                     else
