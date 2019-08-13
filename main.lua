@@ -67,7 +67,7 @@ while true do
                         user_text = split(text,' ')
                         table.remove(user_text,1)
                         user_text = table.concat(user_text,' ')
-                        if not libkb.check(user_text,{'34pic','34gif','34tag'}) then
+                        if not libkb.check(text_split[2],{'34pic','34gif','34tag'}) then
                             ret = requests.get{'https://isinkin-bot-api.herokuapp.com/1/talk',params={q=urlencode.encode_url(user_text)}}
                             libkb.apisay{ret.json().text,toho,token = config.group_token}
                         end
