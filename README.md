@@ -49,9 +49,9 @@ luajit -O3 -b libkbot-src.lua libkbot-dev.lua
 Создай файл "bot.cfg" в папке "config" и заполни его нужной информацией
 ```json
 {
-"group_token":"",
-"user_token":"",
-"group_id":158856938,
+"group_token":"токен группы",
+"user_token":"токен юзера",
+"group_id": ид,
 "names":["луа","/","кб","кбот","kb","кл","kbot","карина","кв","бот","/кб"]
 }
 
