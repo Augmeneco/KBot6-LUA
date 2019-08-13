@@ -15,7 +15,6 @@ return function(str)
         root = index('div.tags__wrapper > a')
         tags = ''
         for _,e in pairs(root) do 
-            print(e:getcontent())
             tags = tags..'• '..e:getcontent()..'<br>'
         end
         libkb.apisay{'Я думаю на изображении что-то из этого: <br>'..tags,msg.toho}
