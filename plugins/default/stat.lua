@@ -1,6 +1,6 @@
 return function(msg)
     local status = io.open('/proc/self/status','r'):read('*a')
-    local BOT_USE = re.match(status,'VmRSS:\\s*(.*) kB'):gsub('%s*','')
+    local BOT_USE = status:match('VmRSS:%s+(%d+) kB')
     status = [[
         [ Статистика ]
         Процессор:

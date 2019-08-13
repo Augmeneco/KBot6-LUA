@@ -1,18 +1,7 @@
-libkb = require('libkbot-src')
+libkb = require('libkbot-dev')
 
 config = json.decode(io.open('./config/bot.cfg','r'):read("*a"))
 cmds = json.decode(io.open('./config/cmds.cfg','r'):read("*a"))
-
---outdated
-
---plugins = {}
---for _,dir in pairs(libkb.scandir('./plugins')) do 
---    plugins[dir] = {}
---    for _,plugin in pairs(libkb.scandir('./plugins/'..dir)) do 
---        plugin = string.gsub(plugin,'.lua','')
---        plugins[dir][plugin] = require("plugins/"..dir.."/"..plugin)
---    end 
---end
 
 lpb = requests.post{'https://api.vk.com/method/groups.getLongPollServer',params={access_token=config.group_token, v='5.80',group_id=config.group_id}}.json().response
 ts = lpb.ts
@@ -44,8 +33,9 @@ while true do
                         table.remove(user_text,1)
                         table.remove(user_text,1)
                         user_text = table.concat(user_text,' ')
-
+                        
                         msg = {}
+                        msg.longpoll = result.object
                         msg.toho = toho
                         msg.text = text
                         msg.userid = userid
@@ -60,23 +50,25 @@ while true do
                             user_info[#user_info+1] = {userid,1,'{}'}
                             libkb.sql_put{'data/users.db','users',{userid,1,'{}'}}
                         end
+                        pass = true
                         if cmds[text_split[2]][1] == 'admin' and user_info[1].perm ~= 3 then
                             libkb.apisay{'Не дорос до админки :(',toho}
-                            libkb.continue()
+                            pass = false
                         end
                         if cmds[text_split[2]][1] == 'vip' and user_info[1].perm == 1 then
                             libkb.apisay{'У тебя нет випки чтобы юзать эту команду',toho}
-                            libkb.continue()
+                            pass = false
                         end
-
-                        thread = threads.new("libkb = require('libkbot-src') msg = ... require(msg.plugin)(msg)",msg)
-                        assert(thread:start(true))
+                        if pass then
+                            thread = threads.new("libkb = require('libkbot-dev') msg = ... require(msg.plugin)(msg)",msg)
+                            assert(thread:start(true))
+                        end
                     else
                         user_text = split(text,' ')
                         table.remove(user_text,1)
                         user_text = table.concat(user_text,' ')
                         ret = requests.get{'https://isinkin-bot-api.herokuapp.com/1/talk',params={q=urlencode.encode_url(user_text)}}
-                        libkb.apisay{ret.json().text,toho}
+                        libkb.apisay{ret.json().text,toho,token = config.group_token}
                     end
                 end
             end

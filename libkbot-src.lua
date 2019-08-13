@@ -4,9 +4,10 @@ urlencode = require('urlencode')
 json = require('cjson')
 split = require('split').split
 threads = require("llthreads2")
-re = require('rex_pcre')
 sqlite = require('lsqlite3')
 curl = require('cURL')
+xml = require("xml")
+htmlparser = require("htmlparser")
 
 funcs = {}
 
@@ -39,6 +40,7 @@ end
 function funcs.apisay(...)
     args = ...
     if args.photo ~= nil then
+        ret = requests.get('https://api.vk.com/method/photos.getMessagesUploadServer?access_token='..msg.config.group_token..'&v=5.100').json()
         curl.easy{
             url = ret.response.upload_url,
             ssl_verifypeer = false,
@@ -56,6 +58,10 @@ function funcs.apisay(...)
         }:perform()
         ret = requests.get('https://api.vk.com/method/photos.saveMessagesPhoto?v=5.100&server='..ret.server..'&photo='..ret.photo..'&hash='..ret.hash..'&access_token='..msg.config.group_token).json()
         args.attachment = 'photo'..ret.response[1].owner_id..'_'..ret.response[1].id
+    end
+    if args.token ~= nil then
+        msg = {config={}}
+        msg.config.group_token = args.token
     end
     params = {access_token=msg.config.group_token,v='5.80',peer_id=args[2],message=urlencode.encode_url(args[1]),attachment=args.attachment}
     return requests.post{'https://api.vk.com/method/messages.send',params=params}
@@ -94,6 +100,21 @@ function funcs.sql_put(...)
     end
     db:close()
     return sqlret
+end
+
+function funcs.curl_proxy(url)
+    ret = ''
+    c = curl.easy{
+        url = url,
+        ssl_verifypeer = false,
+        ssl_verifyhost = false,
+        writefunction = function(str) ret = ret..str end
+    }
+    c:setopt(curl.OPT_PROXYTYPE, curl.PROXY_SOCKS5_HOSTNAME)
+    c:setopt(curl.OPT_PROXY, 'socks5h://localhost:9050')
+    c:setopt(curl.OPT_PROXYPORT, 9050)
+    c:perform()
+    return ret
 end
 
 --осторожно, говнокод
