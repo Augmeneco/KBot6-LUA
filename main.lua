@@ -46,7 +46,8 @@ while true do
                         msg.bot_stat = bot_stat
 
                         user_info = libkb.sql_get{'data/users.db','users','WHERE id='..userid}
-                        if libkb.check(userid,user_info) then
+                        
+                        if #user_info == 0 then
                             user_info[#user_info+1] = {userid,1,'{}'}
                             libkb.sql_put{'data/users.db','users',{userid,1,'{}'}}
                         end
