@@ -100,7 +100,7 @@ if 'reply_message' in longpoll:
 	fwd_messages = []
 	fwd_messages.append(longpoll['reply_message'])
 else:
-	fwd_messages = longpoll[pack['userid']]['object']['fwd_messages']
+	fwd_messages = longpoll['fwd_messages']
 
 
 img = Image.new('RGB', (10000,10000), color = (255,255,255))
