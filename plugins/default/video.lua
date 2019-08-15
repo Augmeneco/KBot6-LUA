@@ -1,5 +1,5 @@
 return function(msg)
-    param = {v='5.90',q=msg.user_text,count=10,access_token=msg.config.user_token}
+    param = {v='5.90',q=urlencode.encode_url(msg.user_text),count=10,access_token=msg.config.user_token}
     items = requests.post{'https://api.vk.com/method/video.search',params=param}.json().response.items
 
     attachment = ''
