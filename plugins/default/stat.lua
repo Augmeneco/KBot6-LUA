@@ -22,7 +22,7 @@ return function(msg)
     status = status:gsub('CHAT',msg.toho):gsub('PERMS',user_info.perm):gsub('USERS',#libkb.sql_get{'data/users.db','users'})
 
     status = status:gsub('BOT_USE',BOT_USE):gsub('UPTIME',io.popen('uptime'):read('*a'))
-    local WORK_TIME = math.floor((os.time()-msg.bot_stat.work_start)/(60*60*24))..' дней | '..(math.floor((os.time()-msg.bot_stat.work_start)/(60*60))%60)..' часов | '
+    local WORK_TIME = math.floor((os.time()-msg.bot_stat.work_start)/(60*60*24))..' дней | '..(math.floor((os.time()-msg.bot_stat.work_start)/(60*60))%24)..' часов | '
     WORK_TIME = WORK_TIME..(math.floor((os.time()-msg.bot_stat.work_start)/(60))%60)..' минут | '..(math.floor((os.time()-msg.bot_stat.work_start))%60)..' секунд'
 
     RAM = {}
