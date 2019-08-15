@@ -12,7 +12,7 @@ return function(msg)
         tags = index[rand].tags
         libkb.apisay{'Дрочевня подкатила<br>('..rand..'/'..index.count..')<br>----------<br>Остальные теги: '..tags,msg.toho,photo=img}
     else
-        libkb.apisay('Ничего не найдено :(',msg.toho)
+        libkb.apisay{'Ничего не найдено :(',msg.toho}
     end
 
 end
