@@ -25,7 +25,10 @@ while true do
                 toho = result.object.peer_id
                 userid = result.object.from_id
                 text_split = split(text,' ')
-                if libkb.check(text_split[1],config.names) then
+				if utf8.lower(text_split[1]) == 'f' and userid > 0 then
+					libkb.apisay{'F',toho,attachment='photo-158856938_457255856',token = config.group_token}
+				end
+                if libkb.check(utf8.lower(text_split[1]),config.names) then
                     bot_stat.cmds = bot_stat.cmds+1
                     print(os.date('%H:%M:%S')..' | Упоминание Кбота в '..toho..' с текстом '..text)
                     if libkb.check(text_split[2],cmds) then

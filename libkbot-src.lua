@@ -8,6 +8,7 @@ sqlite = require('lsqlite3')
 curl = require('cURL')
 xml = require("xml")
 htmlparser = require("htmlparser")
+utf8 = require('utf8')
 
 funcs = {}
 

@@ -17,6 +17,7 @@ sudo luarocks install lua-llthreads2
 sudo luarocks install lua-requests
 sudo luarocks install inspect
 sudo luarocks install Lua-cURL CURL_INCDIR=/usr/include/x86_64-linux-gnu/
+sudo luarocks install utf8
 
 git clone https://github.com/Augmeneco/KBot6-Lua
 cd KBot6-Lua
@@ -37,6 +38,7 @@ sudo luarocks install htmlparser
 sudo luarocks install lua-llthreads2
 sudo luarocks install lua-requests OPENSSL_LIBDIR=/usr/lib/arm-linux-gnueabihf
 sudo luarocks install inspect
+sudo luarocks install utf8
 sudo luarocks --server=https://luarocks.org/dev  install Lua-cURL CURL_INCDIR=/usr/include/arm-linux-gnueabihf
 
 git clone https://github.com/Augmeneco/KBot6-Lua
