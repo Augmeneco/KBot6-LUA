@@ -155,7 +155,9 @@ function funcs.mc_generate(dict)
     for k,_ in pairs(dict) do
         table.insert(keys,k)
     end
-    while true do
+    randnum = math.random(5,30)
+    print(randnum)
+    for i=1, randnum do
         if dict[word] ~= nil then
             word = dict[word]
         else
@@ -166,7 +168,7 @@ function funcs.mc_generate(dict)
         if word ~= nil then
             out = out..word..' '
         end
-        if word == 'END' then break end
+        --if word == 'END' then break end
     end
     out = out:gsub('END','')
     return out

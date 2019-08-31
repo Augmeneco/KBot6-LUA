@@ -13,7 +13,7 @@ return function(msg)
                     libkb.apisay{text,msg.toho}
                     stop = false
                 end
-            end,function(err) print(err) end
+            end,function()end
         )
     end
 end
