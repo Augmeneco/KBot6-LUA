@@ -35,6 +35,8 @@ end
 function funcs.errorhandler( err )
     if string.find(err,'wantread') then return 0 end
     if string.find(err,'arithmetic on a nil value') then return 0 end
+    if string.find(err,'number/string expected') then return 0 end
+    if string.find(err,'attempt to call a boolean value') then return 0 end
     print( "ERROR:", err )
 end
 
