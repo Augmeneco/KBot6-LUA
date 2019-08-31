@@ -72,24 +72,30 @@ end
 
 function funcs.sql_get(...)
     args = ...
-    db = sqlite.open(args[1])
+    if type(args[1]) == 'string' then
+        db = sqlite.open(args[1])
+    else
+        db = args[1]
+    end
     if #args == 2 then args[3] = '' end
     sqlret = {}
     for row in db:nrows('SELECT * FROM '..args[2]..' '..args[3]) do
         sqlret[#sqlret+1] = row
     end
-    db:close()
     return sqlret
 end
 
 function funcs.sql_put(...)
     args = ...
-    db = sqlite.open(args[1])
-    
+    if type(args[1]) == 'string' then
+        db = sqlite.open(args[1])
+    else
+        db = args[1]
+    end
     values = '('
     for _,v in pairs(args[3]) do 
         if type(v) == 'string' then 
-            values = values..'"'..v..'"'..','
+            values = values..'\''..v..'\''..','
         else
             values = values..v..','
         end
@@ -97,12 +103,7 @@ function funcs.sql_put(...)
     values = values..')'
     values = values:gsub(',%)','%)')
 
-    sqlret = {}
-    for row in db:nrows('INSERT INTO '..args[2]..' VALUES '..values) do
-        sqlret[#sqlret+1] = row
-    end
-    db:close()
-    return sqlret
+    db:exec('INSERT INTO '..args[2]..' VALUES '..values)
 end
 
 function funcs.curl_proxy(url)
@@ -118,6 +119,57 @@ function funcs.curl_proxy(url)
     c:setopt(curl.OPT_PROXYPORT, 9050)
     c:perform()
     return ret
+end
+
+function funcs.mc_add()
+    main = libkb.sql_get{db,'main','WHERE id='..toho}
+    if #main == 0 then
+        dict = {}
+        count = 1
+    else
+        dict = json.decode(main[1].json)
+        count = main[1].count
+    end
+    text = 'START '..utf8.lower(text)..' END'
+    text = text:gsub('[.()!]',''):gsub('\n',' ')
+    text = split(text,' ')
+    for key,word in pairs(text) do
+        if dict[word] == nil then
+            dict[word] = {text[key+1]}
+        else
+            table.insert(dict[word],text[key+1])
+        end
+    end
+    if #main == 0 then
+        libkb.sql_put{db,'main',{toho,json.encode(dict),1,'{}'}}
+    else
+        db:exec('UPDATE main SET json=\''..json.encode(dict)..'\', count = '..(count+1)..' WHERE id='..toho)
+    end
+end
+
+function funcs.mc_generate(dict)
+    math.randomseed(os.time())
+    word = dict['START'][math.random(1,#dict['START'])]
+    out = word..' '
+    keys = {}
+    for k,_ in pairs(dict) do
+        table.insert(keys,k)
+    end
+    while true do
+        if dict[word] ~= nil then
+            word = dict[word]
+        else
+            math.randomseed(os.clock())
+            word = dict[keys[math.random(1,#keys)]]
+        end
+        word = word[math.random(1,#word)]
+        if word ~= nil then
+            out = out..word..' '
+        end
+        if word == 'END' then break end
+    end
+    out = out:gsub('END','')
+    return out
 end
 
 --осторожно, говнокод

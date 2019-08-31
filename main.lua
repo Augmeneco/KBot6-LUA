@@ -7,6 +7,7 @@ lpb = requests.post{'https://api.vk.com/method/groups.getLongPollServer',params=
 ts = lpb.ts
 
 bot_stat = {msgs=0,cmds=0,work_start=os.time()}
+dialogs = {}
 
 while true do
     xpcall(
@@ -47,6 +48,7 @@ while true do
                         msg.plugin = 'plugins/'..cmds[text_split[2]][1]..'/'..cmds[text_split[2]][2]
                         msg.config = config
                         msg.bot_stat = bot_stat
+                        msg.dialogs = dialogs
 
                         user_info = libkb.sql_get{'data/users.db','users','WHERE id='..userid}
                         
@@ -76,6 +78,27 @@ while true do
                             libkb.apisay{ret.json().text,toho,token = config.group_token}
                         end
                     end
+                end
+                db = sqlite.open('data/db')
+                if #text_split >= 2 then
+                    libkb.mc_add()
+                end
+                if not libkb.check(toho,dialogs) then
+                    dialogs[toho] = 1
+                else
+                    dialogs[toho] = dialogs[toho]+1
+                end
+                print(os.date('%H:%M:%S')..' | '..result.object.text..' | '..toho..' | '..dialogs[toho])
+                if dialogs[toho] == 10 then
+                    if json.decode(main[1].data)['ignore'] == nil then
+                        if #text_split < 2 then 
+                            dict = json.decode(libkb.sql_get{db,'main','WHERE id='..toho}[1].json)
+                        end
+                        gen_text = libkb.mc_generate(dict)
+                        libkb.apisay{gen_text,toho,token = config.group_token}
+                        
+                    end
+                    dialogs[toho] = 0
                 end
             end
         end,libkb.errorhandler
