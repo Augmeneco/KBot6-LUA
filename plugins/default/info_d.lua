@@ -15,7 +15,7 @@ return function(msg)
     )
     end
     if msg.dialogs[msg.toho] == nil then msg.dialogs[msg.toho] = 0 end
-    status = status:gsub('COUNT',main[1].count):gsub('NEXT',10-(msg.dialogs[msg.toho]+1))
+    status = status:gsub('COUNT',main[1].count):gsub('NEXT',10-msg.dialogs[msg.toho])
 
     libkb.apisay{status,msg.toho}
 end
